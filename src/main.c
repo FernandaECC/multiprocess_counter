@@ -38,15 +38,27 @@ int main() {
   /*Tratamento e armazenamento da sequência de números (input)*/
   int i=0, j=0;
   int array[100];
+  int array_f0[100], array_f1[100], array_f2[100], array_f3[100];
   char temp;
   do {
       scanf("%d%c", &array[i], &temp);
       i++;
       } while(temp != '\n');
-  printf("numero de elementos: %d\n", i);    
+  //printf("numero de elementos: %d\n", i);  
+  int v = 0;
+  int w0=0, w1=0, w2=0, w3=0;  
   for(j=0; j<i; j++) {
-  //printf("%d\n", array[j]);
+ 	v = j%4;
+ 	if(v == 0) {array_f0[w0] = array[j];
+ 	w0++; }
+ 	if(v == 1) {array_f1[w1] = array[j];
+ 	w1++; }
+ 	if(v == 2) {array_f2[w2] = array[j];
+ 	w2++; }
+ 	if(v == 3) {array_f3[w3] = array[j];
+ 	w3++; }
       }
+ 
   
   // definindo o número de processos
   if(i <= 4){
@@ -57,7 +69,7 @@ int main() {
   num_processos = N_PROCESSOS;
   }
   
-  printf("numero de processos = %d", num_processos);
+ 
   
   //###########
   unsigned int p;
@@ -70,45 +82,86 @@ int main() {
   /* Criar area de memoria compartilhada */
   int *count;
   count = (int*) mmap(NULL, sizeof(int), protection, visibility, 0, 0);
-  int *pointer;
-  pointer = (int*) mmap(NULL, sizeof(int), protection, visibility, 0, 0);
+
   
   
   /*inicializando...*/
-  (*pointer) = 0;
-  (*count) = 0;
 
+  (*count) = 0;
+  int k0, k1, k2, k3;
+  int g;
   for (int k=0; k<num_processos; k++) {
     filho[k] = fork();
     
     if (filho[k] == 0) {
+    	if(k == 0) {k0 = getpid(); //obtem o ID do filho 0
+    	//printf("ID de %d: %i\n", k, getpid());
+    	}
+   
+    	else if(k == 1) {k1 = getpid(); //obtem o ID do filho 1
+    	//printf("ID de %d: %i\n", k, getpid());
+    	}	
     
+    	else if(k == 2) {k2 = getpid(); //obtem o ID do filho 2
+    	//printf("ID de %d: %i\n", k, getpid());
+    	}	
+    
+    	else if(k == 3) {k3 = getpid(); //obtem o ID do filho 3
+    	//printf("ID de %d: %i\n", k, getpid());
+    	}	
+    	
+    	
+    	
+    	if(getpid() == k0) { 
+    		for(g=0; g< w0; g++){
+      			p = primo(array_f0[g]);
+      			if (p == 1) {(*count)++ ;}
+      			//printf("Filho %d achou primo(%d)=%d\n", 0, array_f0[g] , p);
+    			}
+    	}
+    	
+    	else if(getpid() == k1) { 
+    		for(g=0; g< w1; g++){
+      			p = primo(array_f1[g]);
+      			if (p == 1) {(*count)++ ;}
+      			//printf("Filho %d achou primo(%d)=%d\n", 1, array_f1[g] , p);
+    			}
+    	}
+    	
+    	else if(getpid() == k2) { 
+    		for(g=0; g< w2; g++){
+      			p = primo(array_f2[g]);
+      			if (p == 1) {(*count)++ ;}
+      			//printf("Filho %d achou primo(%d)=%d\n", 2, array_f2[g] , p);
+    			}
+    	}
+    	
+    	else if(getpid() == k3) { 
+    		for(g=0; g< w3; g++){
+      			p = primo(array_f3[g]);
+      			if (p == 1) {(*count)++ ;}
+      			//printf("Filho %d achou primo(%d)=%d\n", 3, array_f3[g] , p);
+    			}
+    	}    	    	
+    	
+    	
+    	
+    			
       /* Esta parte do codigo executa no processo filho */
-      aux2 = (*pointer);
-      p = primo(array[aux2]);
       
       
-      if (p == 1) {
-      (*count)++ ;
-      (*pointer)++;
-      }
       
-      else {
-      (*pointer)++;
-      }
       
-      printf("pointer = %d\n", (*pointer));
-      printf("Filho %d achou primo(%d)=%d\n", k, array[aux2] , p);
+      
+      //printf("count = %d\n", (*count));
       exit(0);
     }
   }
 
-  printf("Todos os filhos foram gerados. Esperando...\n");
+  //printf("Todos os filhos foram gerados. Esperando...\n");
   for (int k=0; k<N_PROCESSOS; k++) {
     waitpid(filho[k], NULL, 0);
   }
 
-  printf("Todos os filhos terminaram! Final: *count=%d\n", *count);
+  printf("%d\n", *count);
   return 0;
-
-}
