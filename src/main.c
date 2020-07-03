@@ -112,9 +112,11 @@ int main() {
     	else if(k == 3) {k3 = getpid(); //obtem o ID do filho 3
     	}	
     	
+    	sleep(1); //aguarda o processo pai criar todos os processos filhos e os ID's serem obtidos
     	
     	//cada processo filho ira verificar se o seu conjunto de numeros previamente armazenados em vetores sao primos ou nao
     	// se for primo, incrementa a variavel COUNT compartilhada entre processos por meio de mmap()
+    	
     	if(getpid() == k0) { 
     		for(g=0; g< w0; g++){
       			p = primo(array_f0[g]);
@@ -129,7 +131,7 @@ int main() {
     			}
     	}
     	
-    	else if(getpid() == k2) { 
+    	else if(getpid() == k2) {
     		for(g=0; g< w2; g++){
       			p = primo(array_f2[g]);
       			if (p == 1) {(*count)++ ;}
@@ -142,14 +144,13 @@ int main() {
       			if (p == 1) {(*count)++ ;}
     			}
     	}    	    	
+    	exit(0) ;
     	
-    	
-      exit(0);
     }
   }
 
   //espera cada processo filho terminar de executar
-  for (int k=0; k<N_PROCESSOS; k++) {
+  for (int k=0; k<num_processos; k++) {
     waitpid(filho[k], NULL, 0);
   }
 
